@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stok Bahan Ajar - Vue</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Segoe UI, Arial, sans-serif
+        }
+        
+        body {
+            margin: 0;
+            background: linear-gradient(180deg, #edf3ff, #e7effa);
+            color: #1d2b45;
+            padding: 20px;
+        }
+        
+        .app {
+            max-width: 1420px;
+            margin: auto;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 16px 38px rgba(21, 39, 84, .14);
+            border: 1px solid #dfe7f7;
+            overflow: visible;
+        }
+        
+        .header {
+            padding: 16px 22px;
+            background: #0a2463;
+            color: #fff;
+            text-align: left;
+            border-radius: 16px 16px 0 0;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: .01em;
+        }
+        
+        .header p {
+            margin: 0;
+            opacity: .9
+        }
+        
+        .content {
+            padding: 18px
+        }
+        
+        .page-nav {
+            margin-bottom: 14px
+        }
+        
+        .page-nav a {
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .layout-split {
+            display: flex;
+            flex-wrap: nowrap;
+            align-items: flex-start;
+            gap: 20px;
+        }
+        
+        .col-main {
+            flex: 1 1 0;
+            min-width: 0;
+        }
+        
+        .main-panel {
+            background: #fafbfd;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px 16px 14px;
+        }
+        
+        .filter-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px 14px;
+            align-items: flex-end;
+            margin-bottom: 12px;
+        }
+        
+        .filter-toolbar > div {
+            flex: 1 1 150px;
+            min-width: 0;
+        }
+        
+        .filter-toolbar > div.filter-search {
+            flex: 2 1 220px;
+        }
+        
+        .filter-search-input-row {
+            display: flex;
+            gap: 8px;
+            align-items: stretch;
+        }
+        
+        .filter-search-input-row input[type="search"] {
+            flex: 1 1 auto;
+            min-width: 0;
+            width: auto;
+        }
+        
+        .filter-search-input-row .btn-cari {
+            flex-shrink: 0;
+            padding: 10px 16px;
+            white-space: nowrap;
+        }
+        
+        .filter-toolbar .small {
+            margin-bottom: 4px;
+        }
+        
+        .filter-row-2 {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+        
+        .filter-row-2 .btn-reset-filter {
+            margin-left: auto;
+        }
+        
+        .col-sidebar {
+            flex: 0 0 268px;
+            min-width: 240px;
+            max-width: 268px;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(160px, 1fr));
+            gap: 12px;
+            margin-bottom: 12px
+        }
+        
+        .search-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 12px;
+            align-items: stretch;
+        }
+        
+        .search-row input {
+            flex: 1;
+            min-width: 0
+        }
+        
+        input,
+        select {
+            width: 100%;
+            padding: 10px 11px;
+            border: 1px solid #d5def2;
+            border-radius: 10px;
+            background: #fff;
+            color: #1e2a44;
+            transition: border-color .2s ease, box-shadow .2s ease;
+        }
+        
+        input[type="checkbox"],
+        input[type="radio"] {
+            width: auto;
+            min-width: 0;
+            flex-shrink: 0;
+            padding: 0;
+            border: none;
+            border-radius: 4px;
+            background: transparent;
+            box-shadow: none;
+        }
+        
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #3b6ac9;
+            box-shadow: 0 0 0 3px rgba(59, 106, 201, .15);
+        }
+        
+        .btn {
+            border: none;
+            border-radius: 10px;
+            padding: 10px 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform .15s ease, box-shadow .2s ease, background .2s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px)
+        }
+        
+        .btn-primary {
+            background: #1745a7;
+            color: #fff;
+            box-shadow: 0 8px 20px rgba(23, 69, 167, .25)
+        }
+        
+        .btn-secondary {
+            background: #e9f0fe;
+            color: #1a3a78
+        }
+        
+        .btn-danger {
+            background: #fee2e2;
+            color: #9f1239
+        }
+        
+        .btn-warning {
+            background: #fff7ed;
+            color: #b45309
+        }
+        
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+        
+        .filter-row-2 label,
+        .actions label {
+            display: inline-flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 8px;
+            background: #f0f6ff;
+            border: 1px solid #b8cff5;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 13px;
+            color: #1e3a5f;
+            font-weight: 600;
+        }
+        
+        .filter-row-2 label input,
+        .actions label input {
+            margin-right: 0;
+            vertical-align: middle;
+        }
+        
+        .btn-reset-filter {
+            background: #dbeafe;
+            color: #0a2463;
+            border: 1px solid #93c5fd;
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background .15s ease;
+        }
+        
+        .btn-reset-filter:hover {
+            background: #bfdbfe;
+        }
+        
+        table {
+            border-collapse: collapse
+        }
+        
+        .stok-table {
+            width: 100%;
+            table-layout: fixed;
+            border-collapse: collapse;
+        }
+        
+        .stok-table col.col-w-16 { width: 16%; }
+        .stok-table col.col-w-10 { width: 10%; }
+        .stok-table col.col-w-12 { width: 12%; }
+        .stok-table col.col-w-8 { width: 8%; }
+        .stok-table col.col-w-6 { width: 6%; }
+        .stok-table col.col-w-9 { width: 9%; }
+        .stok-table col.col-w-11 { width: 11%; }
+        
+        .stok-table th,
+        .stok-table td {
+            border-bottom: 1px solid #dde4ee;
+            padding: 10px 8px;
+            font-size: 13px;
+            text-align: left;
+            vertical-align: middle;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        .stok-table td.cell-kode .judul-mk {
+            font-weight: 400;
+            color: #334155;
+        }
+        
+        .stok-table th:nth-child(5),
+        .stok-table th:nth-child(6),
+        .stok-table td:nth-child(5),
+        .stok-table td:nth-child(6) {
+            text-align: center;
+            white-space: nowrap;
+            overflow-wrap: normal;
+        }
+        
+        .stok-table th:nth-child(7),
+        .stok-table td:nth-child(7) {
+            text-align: right;
+            white-space: nowrap;
+            font-size: 11px;
+            overflow-wrap: normal;
+        }
+        
+        .stok-table th:nth-child(8),
+        .stok-table td:nth-child(8) {
+            text-align: center;
+        }
+        
+        .stok-table td:nth-child(9) {
+            font-size: 12px;
+            line-height: 1.45;
+            word-break: break-word;
+            color: #334155;
+        }
+        
+        .stok-table td:nth-child(9) .catatan-urgent {
+            color: #c2410c;
+            font-weight: 600;
+        }
+        
+        .stok-table td:nth-child(9) .catatan-muted {
+            color: #64748b;
+            font-style: italic;
+        }
+        
+        .stok-table th:nth-child(10),
+        .stok-table td:nth-child(10) {
+            text-align: center;
+            vertical-align: middle;
+            white-space: nowrap;
+            overflow-wrap: normal;
+            word-break: normal;
+        }
+        
+        .stok-table td:nth-child(10) .btn {
+            padding: 6px 14px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        
+        .btn-edit-table {
+            background: #ffedd5;
+            color: #7c2d12;
+            border: 1px solid #fdba74;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background .15s ease;
+        }
+        
+        .btn-edit-table:hover {
+            background: #fed7aa;
+            transform: translateY(-1px);
+        }
+        
+        .stok-table .badge {
+            display: inline-block;
+            white-space: nowrap;
+            max-width: 100%;
+            line-height: 1.2;
+            font-size: 11px;
+            padding: 3px 8px;
+        }
+        
+        .stok-table td:nth-child(8) .badge {
+            white-space: normal;
+        }
+        
+        .stok-table thead th {
+            position: sticky;
+            top: 0;
+            background: #e2e8f0;
+            color: #1e293b;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            z-index: 1;
+            box-shadow: inset 0 -1px 0 #cbd5e1;
+        }
+        
+        .stok-table tbody tr.stok-data-row.zebra-even {
+            background: #fff;
+        }
+        
+        .stok-table tbody tr.stok-data-row.zebra-odd {
+            background: #f1f5f9;
+        }
+        
+        .stok-table tbody tr.stok-data-row:hover {
+            background: #e8f0fc;
+        }
+        
+        .table-wrap {
+            width: 100%;
+            min-width: 0;
+            overflow-x: auto;
+            overflow-y: auto;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            background: #fff;
+            max-height: min(62vh, 640px);
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700
+        }
+        
+        .aman {
+            background: #dcfce7;
+            color: #15803d
+        }
+        
+        .menipis {
+            background: #ffedd5;
+            color: #c2410c
+        }
+        
+        .kosong {
+            background: #fee2e2;
+            color: #b91c1c
+        }
+        
+        .edit-row {
+            background: #eef4ff !important;
+        }
+        
+        .edit-row:hover {
+            background: #e3ecfc !important;
+        }
+        
+        .edit-row .grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            margin-bottom: 8px;
+        }
+        
+        .edit-row .actions {
+            margin-bottom: 0;
+        }
+        
+        .small {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: block
+        }
+        
+        .form-plus {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            background: linear-gradient(145deg, #6d28d9, #a78bfa);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 800;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        
+        .form-add {
+            padding: 11px 11px 12px;
+            border: 1px solid #d8e4fb;
+            border-radius: 10px;
+            background: #fff;
+            box-shadow: 0 2px 12px rgba(21, 39, 84, .08);
+            position: sticky;
+            top: 12px;
+        }
+        
+        .form-add h3 {
+            margin: 0 0 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e8eef9;
+            color: #1a2d52;
+            font-size: 14px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+        
+        .form-fields {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            align-items: stretch;
+        }
+        
+        .form-fields .form-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+            margin-bottom: 0;
+        }
+        
+        .form-row-pair {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 7px;
+        }
+        
+        .form-add .small {
+            font-size: 11px;
+            margin-bottom: 3px;
+            color: #5a6b86;
+        }
+        
+        .form-add input,
+        .form-add select {
+            padding: 7px 8px;
+            font-size: 13px;
+            border-radius: 8px;
+        }
+        
+        .form-add textarea {
+            min-height: 52px;
+            padding: 7px 8px;
+            font-size: 12px;
+            border-radius: 8px;
+            line-height: 1.35;
+        }
+        
+        .form-add .btn {
+            padding: 7px 12px;
+            font-size: 13px;
+            border-radius: 8px;
+        }
+        
+        .form-add .btn:hover {
+            transform: none
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 10px 11px;
+            border: 1px solid #d5def2;
+            border-radius: 10px;
+            background: #fff;
+            color: #1e2a44;
+            min-height: 88px;
+            resize: vertical;
+            font-family: inherit;
+            font-size: 14px;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #3b6ac9;
+            box-shadow: 0 0 0 3px rgba(59, 106, 201, .15);
+        }
+        
+        .btn-save {
+            background: #1745a7;
+            color: #fff;
+            box-shadow: 0 8px 20px rgba(23, 69, 167, .25)
+        }
+        
+        .btn-save:hover {
+            background: #123d96
+        }
+        
+        .empty {
+            text-align: center;
+            padding: 15px;
+            color: #6c7898
+        }
+        
+        .stock-summary {
+            margin: 0 0 10px;
+            font-size: 13px;
+            color: #43577f;
+            font-weight: 600;
+        }
+        
+        .filter-active-hint {
+            margin: 0 0 10px;
+            font-size: 12px;
+            color: #1a3a78;
+            background: #eef4ff;
+            border: 1px solid #c7d9fb;
+            border-radius: 8px;
+            padding: 8px 10px;
+        }
+        
+        .form-error {
+            display: block;
+            margin-top: 4px;
+            font-size: 11px;
+            color: #b91c1c;
+            font-weight: 600;
+        }
+        
+        .form-success {
+            margin: 0 0 10px;
+            font-size: 12px;
+            color: #15803d;
+            background: #dcfce7;
+            border: 1px solid #86efac;
+            border-radius: 8px;
+            padding: 8px 10px;
+        }
+        
+        .input-invalid {
+            border-color: #f87171 !important;
+            box-shadow: 0 0 0 3px rgba(248, 113, 113, .15) !important;
+        }
+        
+        .btn-toggle-filter {
+            background: #f0f6ff;
+            color: #1a3a78;
+            border: 1px solid #b8cff5;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        
+        @media (max-width: 768px) {
+            .layout-split {
+                flex-direction: column;
+                flex-wrap: wrap;
+            }
+            .col-sidebar {
+                flex: none;
+                min-width: 0;
+                max-width: none;
+                width: 100%;
+            }
+            .form-add {
+                position: static
+            }
+        }
+        
+        @media (max-width: 900px) {
+            .grid {
+                grid-template-columns: repeat(2, minmax(140px, 1fr))
+            }
+            .filter-row-2 .btn-reset-filter {
+                margin-left: 0;
+                width: 100%;
+                text-align: center;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            body {
+                padding: 10px
+            }
+            .content {
+                padding: 12px
+            }
+            .grid {
+                grid-template-columns: 1fr
+            }
+            .form-row-pair {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="stok-app" class="app">
+        <div class="header">
+            <h1>Halaman Stok Bahan Ajar</h1>
+        </div>
+        <div class="content">
+            <div class="page-nav">
+                <a href="dashboard.html" class="btn btn-secondary">Dashboard</a>
+            </div>
+            <div class="layout-split">
+                <div class="col-main">
+                    <div class="main-panel">
+                    <div class="filter-toolbar">
+                        <div class="filter-search">
+                            <label class="small" for="stok-search-keyword">Cari</label>
+                            <div class="filter-search-input-row">
+                                <input id="stok-search-keyword" v-model="filters.keyword" type="search" placeholder="Kode/Judul" autocomplete="off" @keydown.enter.prevent="scrollToTable">
+                                <button type="button" class="btn btn-primary btn-cari" @click="scrollToTable">Cari</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="small" for="stok-filter-upbjj">UT-Daerah</label>
+                            <select id="stok-filter-upbjj" v-model="filters.upbjj"><option value="">Semua</option><option v-for="u in upbjjOptions" :key="u" :value="u">{{ u }}</option></select>
+                        </div>
+                        <div v-if="filters.upbjj">
+                            <label class="small" for="stok-filter-kategori">Kategori</label>
+                            <select id="stok-filter-kategori" v-model="filters.kategori"><option value="">Semua</option><option v-for="k in kategoriOptions" :key="k" :value="k">{{ k }}</option></select>
+                        </div>
+                        <div>
+                            <label class="small" for="stok-filter-sort">Urutkan</label>
+                            <select id="stok-filter-sort" v-model="filters.sortBy"><option value="judul">Judul</option><option value="qty">Stok</option><option value="harga">Harga</option></select>
+                        </div>
+                    </div>
+                    <div class="filter-row-2">
+                        <label><input type="checkbox" v-model="filters.onlyLow"> Stok di bawah safety stock</label>
+                        <label><input type="checkbox" v-model="filters.onlyZero"> Stok kosong</label>
+                        <button type="button" class="btn-toggle-filter" @click="showAdvancedFilters = !showAdvancedFilters">{{ showAdvancedFilters ? 'Sembunyikan' : 'Tampilkan' }} filter lanjutan</button>
+                        <button type="button" class="btn-reset-filter" @click="resetFilters">Reset Filter</button>
+                    </div>
+                    <p class="stock-summary" v-text="stockSummaryText"></p>
+                    <p v-show="hasActiveFilters" class="filter-active-hint" v-text="activeFilterHint"></p>
+                    <p v-show="saveMessage" class="form-success" v-text="saveMessage"></p>
+                    <div class="table-wrap" ref="tableWrap">
+                        <table class="stok-table">
+                            <colgroup>
+                                <col class="col-w-16">
+                                <col class="col-w-10">
+                                <col class="col-w-12">
+                                <col class="col-w-8">
+                                <col class="col-w-6">
+                                <col class="col-w-6">
+                                <col class="col-w-9">
+                                <col class="col-w-11">
+                                <col class="col-w-12">
+                                <col class="col-w-10">
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th>Kode/Judul</th>
+                                    <th>Kategori</th>
+                                    <th>UT-Daerah</th>
+                                    <th>Lokasi Rak</th>
+                                    <th>Stok</th>
+                                    <th>Safety</th>
+                                    <th>Harga</th>
+                                    <th>Status</th>
+                                    <th>Catatan</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-if="stockList.length === 0">
+                                    <td colspan="10" class="empty">Belum ada data stok. Tambahkan dari form di samping.</td>
+                                </tr>
+                                <tr v-else-if="filteredAndSortedStock.length === 0">
+                                    <td colspan="10" class="empty">Data tidak ditemukan dengan filter saat ini.</td>
+                                </tr>
+                                <template v-else v-for="(item, index) in filteredAndSortedStock" :key="item.id">
+                            <tr class="stok-data-row" :class="index % 2 === 0 ? 'zebra-even' : 'zebra-odd'">
+                                <td class="cell-kode"><strong>{{ item.kode }}</strong><br><span class="judul-mk">{{ item.judul }}</span></td>
+                                <td>{{ item.kategori }}</td>
+                                <td>{{ item.upbjj }}</td>
+                                <td>{{ item.lokasiRak }}</td>
+                                <td>{{ item.qty }}</td>
+                                <td>{{ item.safety }}</td>
+                                <td>{{ toRupiah(item.harga) }}</td>
+                                <td><span class="badge" :class="statusInfo(item).className">{{ statusInfo(item).icon }} {{ statusInfo(item).label }}</span></td>
+                                <td>
+                                    <span v-if="item.catatanHTML" v-html="item.catatanHTML"></span>
+                                    <span v-else v-text="'—'"></span>
+                                </td>
+                                <td><button type="button" class="btn-edit-table" @click="startEdit(item)">Edit</button></td>
+                            </tr>
+                            <tr v-if="editingId === item.id" class="edit-row">
+                                <td colspan="10">
+                                    <div class="grid">
+                                        <div><label class="small" for="stok-edit-qty">Stok</label><input id="stok-edit-qty" type="number" min="0" v-model.number="editForm.qty" placeholder="0"></div>
+                                        <div><label class="small" for="stok-edit-safety">Safety</label><input id="stok-edit-safety" type="number" min="0" v-model.number="editForm.safety" placeholder="0"></div>
+                                        <div><label class="small" for="stok-edit-harga">Harga</label><input id="stok-edit-harga" type="number" min="0" v-model.number="editForm.harga" placeholder="0"></div>
+                                        <div><label class="small" for="stok-edit-catatan">Catatan</label><input id="stok-edit-catatan" v-model="editForm.catatanHTML" placeholder="HTML catatan"></div>
+                                    </div>
+                                    <p v-if="editErrors.general" class="form-error" v-text="editErrors.general"></p>
+                                    <div class="actions">
+                                        <button class="btn btn-primary" @click="saveEdit(item.id)">Simpan</button>
+                                        <button class="btn btn-danger" @click="cancelEdit">Batal</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </template>
+                            </tbody>
+                        </table>
+                    </div>
+                    </div>
+                </div>
+                <aside class="col-sidebar">
+                    <div class="form-add">
+                        <h3><span class="form-plus" aria-hidden="true">+</span> Tambah stok baru</h3>
+                        <div class="form-fields">
+                            <div><label class="small" for="stok-new-kode">Kode mata kuliah</label><input id="stok-new-kode" v-model="newItem.kode" :class="{ 'input-invalid': formErrors.kode }" placeholder="Contoh: EKMA4216"><span v-if="formErrors.kode" class="form-error" v-text="formErrors.kode"></span></div>
+                            <div><label class="small" for="stok-new-judul">Judul mata kuliah</label><input id="stok-new-judul" v-model="newItem.judul" placeholder="Judul lengkap"></div>
+                            <div><label class="small" for="stok-new-kategori">Kategori</label><select id="stok-new-kategori" v-model="newItem.kategori"><option value="">— Pilih kategori —</option><option v-for="k in allKategoriOptions" :key="k" :value="k">{{ k }}</option></select></div>
+                            <div><label class="small" for="stok-new-upbjj">UT-Daerah</label><select id="stok-new-upbjj" v-model="newItem.upbjj"><option value="">— Pilih UT-Daerah —</option><option v-for="u in upbjjOptions" :key="u" :value="u">{{ u }}</option></select></div>
+                            <div><label class="small" for="stok-new-lokasi">Lokasi rak</label><input id="stok-new-lokasi" v-model="newItem.lokasiRak" placeholder="Contoh: RAK-A1"></div>
+                            <div class="form-row-pair">
+                                <div><label class="small" for="stok-new-qty">Stok</label><input id="stok-new-qty" type="number" min="0" v-model.number="newItem.qty" placeholder="0" title="Jumlah stok"></div>
+                                <div><label class="small" for="stok-new-safety">Safety</label><input id="stok-new-safety" type="number" min="0" v-model.number="newItem.safety" placeholder="0" title="Batas stok aman"></div>
+                            </div>
+                            <div><label class="small" for="stok-new-harga">Harga</label><input id="stok-new-harga" type="number" min="0" v-model.number="newItem.harga" placeholder="0" title="Harga per unit"></div>
+                            <div><label class="small" for="stok-new-catatan">Catatan</label><textarea id="stok-new-catatan" v-model="newItem.catatanHTML" placeholder="Tambahkan catatan"></textarea></div>
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-save" @click="addItem">Simpan</button>
+                                <button type="button" class="btn btn-secondary" @click="resetNewForm">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/stok-app.js"></script>
+</body>
+
+</html>
